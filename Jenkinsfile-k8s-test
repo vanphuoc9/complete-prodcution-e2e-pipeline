@@ -27,7 +27,9 @@ pipeline {
             }
         }
         stage("Build docker") {
-            agent any
+            agent {
+                label 'docker-build'
+            }
             steps {
                 unstash 'sources'
                 container(name: 'kaniko') {
