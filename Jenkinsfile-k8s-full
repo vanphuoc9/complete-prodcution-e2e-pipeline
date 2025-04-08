@@ -1,5 +1,13 @@
+def version = "v1.${BUILD_NUMBER}"
+
 pipeline {
     agent any
+
+    environment {
+        DOCKER_IMAGE_NAME = "thaiphuoc1997/testk8s"
+        DOCKER_IMAGE = "${DOCKER_IMAGE_NAME}:${version}"
+    }
+
     options {
         skipDefaultCheckout()
     }
@@ -26,14 +34,14 @@ pipeline {
                 stash name: 'sources', includes: '**', excludes: '**/.git,**/.git/**'
             }
         }
-        stage("Build docker") {
+        stage("Build And Push Docker Image") {
             agent {
                 label 'docker-build'
             }
             steps {
                 unstash 'sources'
                 container(name: 'kaniko') {
-                    sh '/kaniko/executor --context=`pwd` --dockerfile=`pwd`/Dockerfile  --destination=thaiphuoc1997/testk8s:latest'
+                    sh '/kaniko/executor --context=`pwd` --dockerfile=`pwd`/Dockerfile  --destination=${DOCKER_IMAGE}'
                 }
             }
         }
